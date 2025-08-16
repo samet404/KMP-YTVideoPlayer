@@ -1,23 +1,27 @@
 package org.videplayer.project
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.painterResource
+import androidx.compose.ui.unit.dp
+import com.multiplatform.webview.web.WebContent
+import com.multiplatform.webview.web.WebView
+import com.multiplatform.webview.web.WebViewState
 import org.jetbrains.compose.ui.tooling.preview.Preview
-
-import videoplayer.composeapp.generated.resources.Res
-import videoplayer.composeapp.generated.resources.compose_multiplatform
 
 @Composable
 @Preview
@@ -31,19 +35,33 @@ fun App() {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                }
-            }
+            WebViewSample()
         }
+    }
+}
+
+@Composable
+internal fun WebViewSample() {
+    MaterialTheme {
+        val url = remember { mutableStateOf<String>("https://notfound404.dev") }
+        val webViewState = remember {
+            mutableStateOf(
+                WebViewState(
+                    webContent = WebContent.Data("<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/7UIHl0oJEpg?si=6lGL2pyTPsalgK4Y\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>")
+                )
+            )
+        }
+
+        Column(Modifier.fillMaxSize()) {
+            val text = webViewState.let {
+                "${webViewState.value.pageTitle ?: ""} ${webViewState.value.loadingState} ${webViewState.value.lastLoadedUrl ?: ""}"
+            }
+            Text(text)
+            WebView(
+                state = webViewState.value,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
     }
 }
